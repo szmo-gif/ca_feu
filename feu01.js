@@ -1,4 +1,21 @@
-function evaluateExpression(expression) {
+const getArguments = () => {
+  return process.argv.slice(2);
+};
+
+const performOperation = (operator, operand1, operand2) => {
+  switch (operator) {
+    case '+':
+      return operand1 + operand2;
+    case '-':
+      return operand1 - operand2;
+    case '*':
+      return operand1 * operand2;
+    case '/':
+      return operand1 / operand2;
+  }
+};
+
+const evaluateExpression = (expression) => {
   const operatorPrecedence = {
     '+': 1,
     '-': 1,
@@ -8,30 +25,6 @@ function evaluateExpression(expression) {
 
   const operators = [];
   const operands = [];
-
-  const performOperation = () => {
-    const operator = operators.pop();
-    const operand2 = operands.pop();
-    const operand1 = operands.pop();
-    let result;
-
-    switch (operator) {
-      case '+':
-        result = operand1 + operand2;
-        break;
-      case '-':
-        result = operand1 - operand2;
-        break;
-      case '*':
-        result = operand1 * operand2;
-        break;
-      case '/':
-        result = operand1 / operand2;
-        break;
-    }
-
-    operands.push(result);
-  };
 
   for (let i = 0; i < expression.length; i++) {
     const char = expression[i];
@@ -56,12 +49,15 @@ function evaluateExpression(expression) {
         operators.length > 0 &&
         operatorPrecedence[operators[operators.length - 1]] >= currentPrecedence
       ) {
-        performOperation();
+        const operator = operators.pop();
+        const operand2 = operands.pop();
+        const operand1 = operands.pop();
+        operands.push(performOperation(operator, operand1, operand2));
       }
       operators.push(char);
-    } else if (!isNaN(parseInt(char))) {
+    } else if (!isNaN(char)) {
       let num = char;
-      while (!isNaN(parseInt(expression[i + 1]))) {
+      while (!isNaN(expression[i + 1])) {
         num += expression[i + 1];
         i++;
       }
@@ -70,13 +66,16 @@ function evaluateExpression(expression) {
   }
 
   while (operators.length > 0) {
-    performOperation();
+    const operator = operators.pop();
+    const operand2 = operands.pop();
+    const operand1 = operands.pop();
+    operands.push(performOperation(operator, operand1, operand2));
   }
 
   return operands.pop();
-}
+};
 
-function extractArgumentsFromParenthesis(argument) {
+const extractArgumentsFromParenthesis = (argument) => {
   const result = [];
   let currentArgument = '';
 
@@ -113,12 +112,12 @@ function extractArgumentsFromParenthesis(argument) {
   }
 
   return result;
-}
+};
 
-function main() {
-  const argument = process.argv.slice(2);
-  const result = evaluateExpression(extractArgumentsFromParenthesis(argument.join(' '))); // Join the argument array into a single string
+const main = () => {
+  const argument = getArguments();
+  const result = evaluateExpression(extractArgumentsFromParenthesis(argument.join(' ')));
   console.log(result);
-}
+};
 
 main();
