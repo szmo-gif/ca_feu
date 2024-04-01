@@ -29,21 +29,7 @@ const evaluateExpression = (expression) => {
   for (let i = 0; i < expression.length; i++) {
     const char = expression[i];
 
-    if (char === '(') {
-      let count = 1;
-      let j = i + 1;
-      while (count > 0 && j < expression.length) {
-        if (expression[j] === '(') {
-          count++;
-        } else if (expression[j] === ')') {
-          count--;
-        }
-        j++;
-      }
-      const subExpression = expression.slice(i + 1, j - 1);
-      operands.push(evaluateExpression(subExpression));
-      i = j - 1;
-    } else if (char in operatorPrecedence) {
+    if (char in operatorPrecedence) {
       const currentPrecedence = operatorPrecedence[char];
       while (
         operators.length > 0 &&
@@ -81,7 +67,7 @@ const extractArgumentsFromParenthesis = (argument) => {
 
   for (let i = 0; i < argument.length; i++) {
     const char = argument[i];
-    
+
     if (char === '(') {
       let count = 1;
       let j = i + 1;
@@ -114,10 +100,10 @@ const extractArgumentsFromParenthesis = (argument) => {
   return result;
 };
 
-const main = () => {
+const displayResultExpression = () => {
   const argument = getArguments();
   const result = evaluateExpression(extractArgumentsFromParenthesis(argument.join(' ')));
   console.log(result);
 };
 
-main();
+displayResultExpression();
