@@ -1,17 +1,22 @@
 const fs = require('fs');
 
-// Fonction pour lire un fichier et retourner son contenu
-function lireFichier(nomFichier) {
+// Function to read a file and return its content
+const readFile = (fileName) => {
     try {
-        return fs.readFileSync(nomFichier, 'utf8');
-    } catch (err) {
-        console.error(`Erreur de lecture du fichier ${nomFichier}: ${err}`);
+        return fs.readFileSync(fileName, 'utf8');
+    } catch (error) {
+        console.error(`Error reading file ${fileName}: ${error}`);
         process.exit(1);
     }
-}
+};
 
-// Fonction pour trouver les coordonnées du coin supérieur gauche de la forme dans le plateau
-function trouverPosition(board, toFind) {
+// Function to get command line arguments
+const getArguments = () => {
+    return process.argv.slice(2);
+};
+
+// Function to find the coordinates of the top-left corner of the shape on the board
+const findPosition = (board, toFind) => {
     const boardLines = board.trim().split('\n');
     const toFindLines = toFind.trim().split('\n');
 
@@ -20,69 +25,75 @@ function trouverPosition(board, toFind) {
             let match = true;
             for (let k = 0; k < toFindLines.length; k++) {
                 for (let l = 0; l < toFindLines[0].length; l++) {
-                    const charPlateau = boardLines[i + k].charAt(j + l);
-                    const charForme = toFindLines[k].charAt(l);
-                    if (charForme !== ' ' && charPlateau !== charForme) {
+                    const charBoard = boardLines[i + k].charAt(j + l);
+                    const charToFind = toFindLines[k].charAt(l);
+                    if (charToFind !== ' ' && charBoard !== charToFind) {
                         match = false;
                         break;
                     }
                 }
                 if (!match) break;
             }
-            if (match) return { x: j + 1, y: i + 1 }; // Ajouter 1 car les coordonnées sont basées sur l'index 1
+            if (match) return { x: j + 1, y: i + 1 }; // Adding 1 because coordinates are 1-based
         }
     }
 
     return null;
-}
+};
 
-// Fonction pour afficher la représentation de la forme dans le plateau
-function afficherFormeDansPlateau(board, toFind, position) {
+// Function to display the shape within the board
+const displayShapeInBoard = (board, shape, position) => {
     const boardLines = board.trim().split('\n');
-    const toFindLines = toFind.trim().split('\n');
+    const shapeLines = shape.trim().split('\n');
 
     for (let i = 0; i < boardLines.length; i++) {
-        let line = "";
+        let line = '';
         for (let j = 0; j < boardLines[0].length; j++) {
-            if (i >= position.y - 1 && i < position.y - 1 + toFindLines.length &&
-                j >= position.x - 1 && j < position.x - 1 + toFindLines[0].length) {
-                const charPlateau = boardLines[i].charAt(j);
-                const charForme = toFindLines[i - position.y + 1].charAt(j - position.x + 1);
-                line += (charForme !== ' ' && charPlateau === charForme) ? charForme : '-';
+            if (i >= position.y - 1 && i < position.y - 1 + shapeLines.length &&
+                j >= position.x - 1 && j < position.x - 1 + shapeLines[0].length) {
+                const charBoard = boardLines[i].charAt(j);
+                const charShape = shapeLines[i - position.y + 1].charAt(j - position.x + 1);
+                line += (charShape !== ' ' && charBoard === charShape) ? charShape : '-';
             } else {
                 line += '-';
             }
         }
         console.log(line);
     }
+};
+
+const isNotArguments = (args) => {
+  if (args.length === 2) {
+    return true
+}
+  return false
 }
 
-// Fonction principale
-function main(boardFile, toFindFile) {
-    console.log("Lecture des fichiers...");
-    const boardContent = lireFichier(boardFile);
-    const toFindContent = lireFichier(toFindFile);
-    console.log("Contenu du plateau:", boardContent);
-    console.log("Forme à trouver:", toFindContent);
+// Main function
+const main = () => {
+    const args = getArguments();
 
-    console.log("Recherche de la forme...");
-    const position = trouverPosition(boardContent, toFindContent);
+    if (!isNotArguments(args)) {
+      console.error('erreur');
+      return
+    }
+
+    const boardFile = args[0];
+    const toFindFile = args[1];
+
+    const boardContent = readFile(boardFile);
+    const toFindContent = readFile(toFindFile);
+
+    const position = findPosition(boardContent, toFindContent);
 
     if (position) {
-        console.log("Trouvé !");
-        console.log(`Coordonnées : ${position.x-1},${position.y-1}`);
-        console.log("Plateau avec la forme trouvée :");
-        afficherFormeDansPlateau(boardContent, toFindContent, position);
+        console.log('Trouver!');
+        console.log(`${position.x - 1},${position.y - 1}`);
+        displayShapeInBoard(boardContent, toFindContent, position);
     } else {
-        console.log("Introuvable");
+        console.log('Introuvable!');
     }
-}
+};
 
-// Appel de la fonction principale avec les arguments du programme
-const args = process.argv.slice(2);
-if (args.length !== 2) {
-    console.error("Usage: node exo.js board.txt to_find.txt");
-    process.exit(1);
-}
-
-main(args[0], args[1]);
+// Call the main function
+main();
