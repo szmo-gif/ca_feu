@@ -102,7 +102,7 @@ const extractArgumentsFromParenthesis = (argument) => {
 
 const displayResultExpression = () => {
   const argument = getArguments();
-  const result = evaluateExpression(extractArgumentsFromParenthesis(argument.join(' ')));
+  const result = evaluateExpression(extractArgumentsFromParenthesis(argument.join('')));
   console.log(result);
 };
 
