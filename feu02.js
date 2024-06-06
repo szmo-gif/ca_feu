@@ -96,7 +96,7 @@ const displayShapeInBoard = (board, shape, position) => {
   }
 };
 
-const isNotArguments = (args) => {
+const isCheckArguments = (args) => {
   if (args.length === 2) {
     return true
   }
@@ -107,7 +107,7 @@ const isNotArguments = (args) => {
 const displayForm = () => {
   const args = getArguments();
 
-  if (!isNotArguments(args)) {
+  if (!isCheckArguments(args)) {
     console.error('erreur');
     return
   }

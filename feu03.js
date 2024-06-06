@@ -15,37 +15,44 @@ const getArguments = () => {
   return process.argv.slice(2);
 };
 
+const isCheckArgs = (args) => {
+  if (args.length === 1) {
+    return true;
+  }
+  return false;
+}
+
 // Function to display the sudoku
 const displaySudoku = (sudoku) => {
   sudoku.forEach(row => console.log(row.join('')));
 }
 
 // Function to solve the sudoku
-const solvedSudoku = (sudoku) => {
-  const empty = foundCaseEmpty(sudoku);
+const solveSudoku = (sudoku) => {
+  const empty = findEmptyCell(sudoku);
   if (!empty) {
-    return true; // Sudoku résolu
+    return true; // Sudoku solved
   }
 
   const [line, column] = empty;
 
   for (let num = 1; num <= 9; num++) {
-    if (isCaseEmpty(sudoku, line, column, num)) {
-      sudoku[line][column] = num;
+    if (isValidPlacement(sudoku, line, column, num)) {
+      sudoku[line][column] = String(num);
 
-      if (solvedSudoku(sudoku)) {
+      if (solveSudoku(sudoku)) {
         return true;
       }
 
-      sudoku[line][column] = "."; // Réinitialiser pour essayer une autre valeur
+      sudoku[line][column] = "."; // Reset and try another number
     }
   }
 
-  return false; // Aucune valeur ne convient, défaire le dernier placement
+  return false; // No number fits, backtrack
 }
 
 // Function to find an empty cell in the sudoku
-const foundCaseEmpty = (sudoku) => {
+const findEmptyCell = (sudoku) => {
   for (let line = 0; line < 9; line++) {
     for (let column = 0; column < 9; column++) {
       if (sudoku[line][column] === ".") {
@@ -57,29 +64,29 @@ const foundCaseEmpty = (sudoku) => {
 }
 
 // Function to check if a placement is valid in the sudoku
-const isCaseEmpty = (sudoku, line, column, num) => {
+const isValidPlacement = (sudoku, line, column, num) => {
   // Check the row
   for (let i = 0; i < 9; i++) {
-    if (sudoku[line][i] === num) {
+    if (sudoku[line][i] === String(num)) {
       return false;
     }
   }
 
   // Check the column
   for (let i = 0; i < 9; i++) {
-    if (sudoku[i] && sudoku[i][column] === num) { // Check if sudoku[i] is defined
+    if (sudoku[i] && sudoku[i][column] === String(num)) { // Check if sudoku[i] is defined
       return false;
     }
   }
 
   // Check the 3x3 block
-  const blocLine = Math.floor(line / 3) * 3;
-  const blocColumn = Math.floor(column / 3) * 3;
+  const blockLine = Math.floor(line / 3) * 3;
+  const blockColumn = Math.floor(column / 3) * 3;
   for (let i = 0; i < 3; i++) {
     for (let j = 0; j < 3; j++) {
-      const currentline = blocLine + i;
-      const currentcolumn = blocColumn + j;
-      if (sudoku[currentline] && sudoku[currentline][currentcolumn] === num) {
+      const currentLine = blockLine + i;
+      const currentColumn = blockColumn + j;
+      if (sudoku[currentLine] && sudoku[currentLine][currentColumn] === String(num)) {
         return false;
       }
     }
@@ -88,16 +95,27 @@ const isCaseEmpty = (sudoku, line, column, num) => {
   return true;
 }
 
-// Example usage
-const file = getArguments()[0];
-const sudoku = readFile(file).split("\n").map(row => row.split(""));
+const main = () => {
+  const args = getArguments();
 
-console.log("Sudoku avant résolution :");
-displaySudoku(sudoku);
-console.log("-------------------------");
-if (solvedSudoku(sudoku)) {
-  console.log("Sudoku résolu :");
+  if (!isCheckArgs(args)) {
+    console.error("error");
+    return;
+  }
+
+const file = args[0];
+
+  const sudoku = readFile(file).split("\n").map(row => row.split(""));
+
+  console.log("Sudoku avant résolution :");
   displaySudoku(sudoku);
-} else {
-  console.log("Aucune solution trouvée.");
+  console.log("-------------------------");
+  if (solveSudoku(sudoku)) {
+    console.log("Sudoku résolu :");
+    displaySudoku(sudoku);
+  } else {
+    console.log("Aucune solution trouvée.");
+  }
 }
+
+main();
