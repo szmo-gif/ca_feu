@@ -2,6 +2,43 @@ const getArguments = () => {
   return process.argv.slice(2);
 };
 
+const ischeckArgs = (args) => {
+  if (args.length === 1) {
+    return true;
+  }
+  return false;
+};
+
+const ischeckparenthesis = (args) => {
+  let parenthesis = 0;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '(') {
+      parenthesis++;
+    } else if (args[i] === ')') {
+      parenthesis--;
+    }
+    if (parenthesis < 0) {
+      return false;
+    }
+  }
+  return parenthesis === 0;
+};
+
+const noNestedParentheses = (args) => {
+  let parenthesis = 0;
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '(') {
+      parenthesis++;
+      if (parenthesis > 1) {
+        return false;  // Détecte des parenthèses imbriquées
+      }
+    } else if (args[i] === ')') {
+      parenthesis--;
+    }
+  }
+  return true;
+};
+
 const performOperation = (operator, operand1, operand2) => {
   switch (operator) {
     case '+':
@@ -12,6 +49,8 @@ const performOperation = (operator, operand1, operand2) => {
       return operand1 * operand2;
     case '/':
       return operand1 / operand2;
+    default:
+      throw new Error(`Unsupported operator: ${operator}`);
   }
 };
 
@@ -102,7 +141,27 @@ const extractArgumentsFromParenthesis = (argument) => {
 
 const displayResultExpression = () => {
   const argument = getArguments();
-  const result = evaluateExpression(extractArgumentsFromParenthesis(argument.join('')));
+
+  if (!ischeckArgs(argument)) {
+    console.log('error: invalid number of arguments');
+    return;
+  }
+
+  const joinArgument = argument.join('');
+
+  if (!ischeckparenthesis(joinArgument)) {
+    console.log('error: unbalanced parentheses');
+    return;
+  }
+
+  if (!noNestedParentheses(joinArgument)) {
+    console.log('error: nested parentheses are not allowed');
+    return;
+  }
+
+  const extractedArguments = extractArgumentsFromParenthesis(joinArgument);
+  
+  const result = evaluateExpression(extractedArguments);
   console.log(result);
 };
 
