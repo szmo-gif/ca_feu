@@ -24,7 +24,7 @@ const ischeckparenthesis = (args) => {
   return parenthesis === 0;
 };
 
-const noNestedParentheses = (args) => {
+const isNoNestedParentheses = (args) => {
   let parenthesis = 0;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '(') {

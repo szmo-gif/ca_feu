@@ -15,26 +15,60 @@ const getArguments = () => {
   return process.argv.slice(2);
 };
 
-// Function to find the coordinates of the top-left corner of the shape on the board
-const findPosition = (board, toFind) => {
+// Function to perform BFS to find the shape in the board
+const findPositionBFS = (board, toFind) => {
   const boardLines = board.trim().split('\n');
   const toFindLines = toFind.trim().split('\n');
 
-  for (let i = 0; i <= boardLines.length - toFindLines.length; i++) {
-    for (let j = 0; j <= boardLines[0].length - toFindLines[0].length; j++) {
-      let match = true;
-      for (let k = 0; k < toFindLines.length; k++) {
-        for (let l = 0; l < toFindLines[0].length; l++) {
-          const charBoard = boardLines[i + k].charAt(j + l);
-          const charToFind = toFindLines[k].charAt(l);
-          if (charToFind !== ' ' && charBoard !== charToFind) {
-            match = false;
-            break;
-          }
-        }
-        if (!match) break;
+  const rows = boardLines.length;
+  const cols = boardLines[0].length;
+  const toFindRows = toFindLines.length;
+  const toFindCols = toFindLines[0].length;
+
+  const directions = [
+    { x: 0, y: 1 },
+    { x: 1, y: 0 },
+    { x: 0, y: -1 },
+    { x: -1, y: 0 }
+  ];
+
+  const queue = [];
+
+  for (let i = 0; i <= rows - toFindRows; i++) {
+    for (let j = 0; j <= cols - toFindCols; j++) {
+      if (boardLines[i][j] === toFindLines[0][0]) {
+        queue.push({ x: j, y: i, depth: 0 });
       }
-      if (match) return { x: j + 1, y: i + 1 }; // Adding 1 because coordinates are 1-based
+    }
+  }
+
+  while (queue.length > 0) {
+    const { x, y, depth } = queue.shift();
+
+    let match = true;
+    for (let k = 0; k < toFindRows; k++) {
+      for (let l = 0; l < toFindCols; l++) {
+        const charBoard = boardLines[y + k].charAt(x + l);
+        const charToFind = toFindLines[k].charAt(l);
+        if (charToFind !== ' ' && charBoard !== charToFind) {
+          match = false;
+          break;
+        }
+      }
+      if (!match) break;
+    }
+
+    if (match) return { x: x + 1, y: y + 1 }; // Adding 1 because coordinates are 1-based
+
+    for (const direction of directions) {
+      const newX = x + direction.x;
+      const newY = y + direction.y;
+      if (
+        newX >= 0 && newX <= cols - toFindCols &&
+        newY >= 0 && newY <= rows - toFindRows
+      ) {
+        queue.push({ x: newX, y: newY, depth: depth + 1 });
+      }
     }
   }
 
@@ -70,7 +104,7 @@ const isNotArguments = (args) => {
 }
 
 // Main function
-const main = () => {
+const displayForm = () => {
   const args = getArguments();
 
   if (!isNotArguments(args)) {
@@ -84,7 +118,7 @@ const main = () => {
   const boardContent = readFile(boardFile);
   const toFindContent = readFile(toFindFile);
 
-  const position = findPosition(boardContent, toFindContent);
+  const position = findPositionBFS(boardContent, toFindContent);
 
   if (position) {
     console.log('Trouver!');
@@ -96,4 +130,4 @@ const main = () => {
 };
 
 // Call the main function
-main();
+displayForm();
