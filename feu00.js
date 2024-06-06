@@ -2,24 +2,22 @@ const getArguments = () => {
   return process.argv.slice(2);
 }
 
-const checkArgs = (args) => {
+const ischeckArgs = (args) => {
   if(args.length === 2) {
     return true
   }
   return false
 }
 
-const checkNumbers = (args) => {
+const ischeckNumbers = (args) => {
   if(!isNaN(args[0]) && !isNaN(args[1])) {
     return true
   }
   return false
 }
 
-const buildSquare = (args) => {
+const buildSquare = (widths, heights) => {
   const square = [];
-  const widths = args[0]; 
-  const heights = args[1]; 
   const corner = "o";
   const line = "-";
   const space = " ";
@@ -39,11 +37,13 @@ const buildSquare = (args) => {
 
 const displaySquare = () => {
   const args = getArguments();
-  if(!checkArgs(args) || !checkNumbers(args)) {
+  if(!ischeckArgs(args) || !ischeckNumbers(args)) {
     console.log("error");
     return
   }
-  const square = buildSquare(args);
+  const widths = args[0];
+  const heights = args[1];
+  const square = buildSquare(widths, heights);
   return console.log(square);
 }
 
