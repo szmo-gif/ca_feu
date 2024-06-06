@@ -12,10 +12,15 @@ const readFile = (fileName) => {
   try {
     return fs.readFileSync(fileName, 'utf8').trim().split('\n');
   } catch (error) {
-    console.error(`Error reading file ${fileName}: ${error}`);
+    console.error("erreur : lire le fichier plateau.txt");
     process.exit(1);
   }
 };
+
+const isGoodFile = (file) => {
+  return file === 'plateau.txt';
+};
+
 
 const parseTray = (lines) => {
   const [header, ...trayLines] = lines;
@@ -68,7 +73,7 @@ const displayTray = (tray) => {
   });
 };
 
-const main = () => {
+const displaybiggestSquare = () => {
   const args = getArguments();
 
   if (!isGoodArguments(args)) {
@@ -77,6 +82,12 @@ const main = () => {
   }
 
   const fileName = args[0];
+
+  if (!isGoodFile(fileName)) {
+    console.error('Error: Invalid file name');
+    return;
+  }
+
   const fileContent = readFile(fileName);
   
   const { tray, emptyChar, obstacleChar, fullChar } = parseTray(fileContent);
@@ -85,4 +96,4 @@ const main = () => {
   displayTray(tray);
 };
 
-main();
+displaybiggestSquare();

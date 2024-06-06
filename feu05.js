@@ -19,33 +19,43 @@ const mazeInfo = (data) => {
   return { height: parseInt(height), width: parseInt(width), obstacles, chemin, entry, exit, maze: mazeLines.map(line => line.split('')) };
 }
 
-const findPathBFS = (mazeInfo) => {
-  const { height, width, obstacles, chemin, entry, exit, maze } = mazeInfo;
-
-  const directions = [
+const getDirections = () => {
+  return [
     [0, 1], [1, 0], [0, -1], [-1, 0]
   ];
-  const visited = Array.from({ length: height }, () => Array(width).fill(false));
-  const queue = [];
-  
-  // Trouver les coordonnées de l'entrée
-  let start = null;
-  for (let i = 0; i < height; i++) {
-    for (let j = 0; j < width; j++) {
+};
+
+const initializeVisited = (height, width) => {
+  return Array.from({ length: height }, () => Array(width).fill(false));
+};
+
+const findEntry = (maze, entry) => {
+  for (let i = 0; i < maze.length; i++) {
+    for (let j = 0; j < maze[i].length; j++) {
       if (maze[i][j] === entry) {
-        start = [i, j];
-        break;
+        return [i, j];
       }
     }
-    if (start) break;
   }
-  
+  return null;
+};
+
+const isValidMove = (nx, ny, height, width, visited, maze, obstacles) => {
+  return nx >= 0 && nx < height && ny >= 0 && ny < width && !visited[nx][ny] && maze[nx][ny] !== obstacles;
+};
+
+const solveMaze = ({ height, width, obstacles, chemin, entry, exit, maze }) => {
+  const directions = getDirections();
+  const visited = initializeVisited(height, width);
+  const queue = [];
+
+  const start = findEntry(maze, entry);
   if (!start) {
     console.error("Entrée non trouvée");
     return false;
   }
 
-  queue.push([...start, []]); // Ajouter les coordonnées de départ et le chemin initial
+  queue.push([...start, []]);
   visited[start[0]][start[1]] = true;
 
   while (queue.length) {
@@ -58,25 +68,23 @@ const findPathBFS = (mazeInfo) => {
     for (const [dx, dy] of directions) {
       const [nx, ny] = [x + dx, y + dy];
 
-      if (nx >= 0 && nx < height && ny >= 0 && ny < width &&
-          !visited[nx][ny] && maze[nx][ny] !== obstacles) {
-        
+      if (isValidMove(nx, ny, height, width, visited, maze, obstacles)) {
         visited[nx][ny] = true;
         queue.push([nx, ny, path.concat([[x, y]])]);
       }
     }
   }
 
-  return false; // Aucun chemin trouvé
-}
+  return false;
+};
 
-const main = () => {
+const displayResolvedMaze = () => {
   const args = getArguments();
   const data = readFile(args[0]);
 
   const maze = mazeInfo(data);
 
-  const solved = findPathBFS(maze);
+  const solved = solveMaze(maze);
   console.log(`solved: ${solved ? 'Yes' : 'No'}`);
 
   if (solved) {
@@ -98,4 +106,4 @@ const main = () => {
   maze.maze.forEach(line => console.log(line.join('')));
 }
 
-main();
+displayResolvedMaze();

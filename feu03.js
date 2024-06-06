@@ -95,7 +95,7 @@ const isValidPlacement = (sudoku, line, column, num) => {
   return true;
 }
 
-const main = () => {
+const displayResolvedSudoku = () => {
   const args = getArguments();
 
   if (!isCheckArgs(args)) {
@@ -118,4 +118,4 @@ const file = args[0];
   }
 }
 
-main();
+displayResolvedSudoku();
